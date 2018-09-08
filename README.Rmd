@@ -15,7 +15,7 @@ Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible t
 
 
 ## Data Analysis
-
+The goal of the project is to predict the classe variable through available predictors.
 
 ### Load Libraries
 To analyze the Data, I have imported the following libraries.
@@ -27,9 +27,36 @@ library(randomForest);
 ```
 
 ### Import Data
+Training and testing datas are downloaded from the website.
 ```{r, warning=FALSE, message=FALSE}
-training <- read.csv("pml-training.csv", na.strings = c("NA", ""))
-testing <- read.csv("pml-testing.csv", na.strings = c("NA", ""))
+training <- read.csv("pml-training.csv", na.strings = c("NA", "","#DIV/0!"))
+testing <- read.csv("pml-testing.csv", na.strings = c("NA", "","#DIV/0!"))
 ```
 
+### Data Cleaning
+First, we get the # of obs. in the training set.
+```{r}
+nrow(training); ncol(training)
+nrow(testing); ncol(testing)
+```
+
+The training data set has a total of 19622 obs. and 160 variables.
+The testing data set has a total of 20 obs. and 160 variables. 
+
+```{r}
+colnames(training[,1:7])
+training <- training[,-c(1:7)]
+testing <- testing[,-c(1:7)]
+```
+
+Through investigation, the first 7 columns in the data set are not inferencial to predicting the classe variable.
+Hence, we adjust the data frame to exclude the first 7 columns.
+
+```{r, echo=FALSE}
+sapply(training, function(x) sum(is.na(x)))
+sapply(testing, function(x) sum(is.na(x)))
+training <- training[, colSums(is.na(training)) == 0]
+testing <- testing[, colSums(is.na(testing)) == 0]
+```
+Through investigation, some variables have NA values in nearly all observations, hence columns with NA values are removed from data frames.
 

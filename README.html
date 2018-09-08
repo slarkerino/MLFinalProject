@@ -134,6 +134,7 @@ $(document).ready(function () {
 </div>
 <div id="data-analysis" class="section level2">
 <h2>Data Analysis</h2>
+<p>The goal of the project is to predict the classe variable through available predictors.</p>
 <div id="load-libraries" class="section level3">
 <h3>Load Libraries</h3>
 <p>To analyze the Data, I have imported the following libraries.</p>
@@ -144,8 +145,23 @@ library(randomForest);</code></pre>
 </div>
 <div id="import-data" class="section level3">
 <h3>Import Data</h3>
-<pre class="r"><code>training &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;&quot;))
-testing &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;&quot;))</code></pre>
+<p>Training and testing datas are downloaded from the website.</p>
+<pre class="r"><code>training &lt;- read.csv(&quot;pml-training.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;&quot;,&quot;#DIV/0!&quot;))
+testing &lt;- read.csv(&quot;pml-testing.csv&quot;, na.strings = c(&quot;NA&quot;, &quot;&quot;,&quot;#DIV/0!&quot;))</code></pre>
+</div>
+<div id="data-cleaning" class="section level3">
+<h3>Data Cleaning</h3>
+<p>First, we get the # of obs. in the training set.</p>
+<pre class="r"><code>nrow(training); ncol(training)</code></pre>
+<pre><code>## [1] 19622</code></pre>
+<pre><code>## [1] 160</code></pre>
+<p>The training data set has a total of 19622 obs. and 160 variables.</p>
+<pre class="r"><code>colnames(training[,1:7])</code></pre>
+<pre><code>## [1] &quot;X&quot;                    &quot;user_name&quot;            &quot;raw_timestamp_part_1&quot;
+## [4] &quot;raw_timestamp_part_2&quot; &quot;cvtd_timestamp&quot;       &quot;new_window&quot;          
+## [7] &quot;num_window&quot;</code></pre>
+<pre class="r"><code>training &lt;- training[,-c(1:7)]</code></pre>
+<p>Through investigation, the first 7 columns in the data set are not inferencial to predicting the classe variable. Hence, we adjust the data frame to exclude the first 7 columns.</p>
 </div>
 </div>
 
