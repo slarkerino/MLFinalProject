@@ -15,15 +15,21 @@ Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible t
 
 
 ## Data Analysis
-To analyze the Data, I have imported the following libraries.
 
+
+### Load Libraries
+To analyze the Data, I have imported the following libraries.
 ```{r, warning=FALSE, message=FALSE}
 library(caret); 
 library(rattle); 
 library(rpart); 
-library(randomForest); 
+library(randomForest);
 ```
 
-
+### Import Data
+```{r, warning=FALSE, message=FALSE}
+training <- read.csv("pml-training.csv", na.strings = c("NA", ""))
+testing <- read.csv("pml-testing.csv", na.strings = c("NA", ""))
+```
 
 
