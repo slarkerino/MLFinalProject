@@ -14,9 +14,9 @@ knitr::opts_chunk$set(echo = TRUE)
 Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These types of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, the goal of the project will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
 
 
-## Data Analysis
+## Data Preprocessing
 The goal of the project is to predict the classe variable through available predictors.
-
+The csv file has each each row represents one barbell lift performed by a distinct participant, each column represents the arrtibute of that lift.
 ### Load Libraries
 To analyze the Data, I have imported the following libraries.
 ```{r, warning=FALSE, message=FALSE}
@@ -24,6 +24,8 @@ library(caret);
 library(rattle); 
 library(rpart); 
 library(randomForest);
+library(dplyr)
+library(corrplot)
 ```
 
 ### Import Data
@@ -52,11 +54,42 @@ testing <- testing[,-c(1:7)]
 Through investigation, the first 7 columns in the data set are not inferencial to predicting the classe variable.
 Hence, we adjust the data frame to exclude the first 7 columns.
 
-```{r, echo=FALSE}
+```{r, results='hide'}
 sapply(training, function(x) sum(is.na(x)))
 sapply(testing, function(x) sum(is.na(x)))
 training <- training[, colSums(is.na(training)) == 0]
 testing <- testing[, colSums(is.na(testing)) == 0]
 ```
 Through investigation, some variables have NA values in nearly all observations, hence columns with NA values are removed from data frames.
+
+## Exploratory Analysis
+
+### The correlation between numeric variables.
+```{r fig.cap= "The correlation between numeric variables", fig.width= 15, fig.height=10}
+numeric.var <- sapply(training, is.numeric)
+corr.matrix <- cor(training[,numeric.var])
+corrplot(corr.matrix, type = "upper", order = "hclust",tl.col = "black", tl.srt = 45)
+```
+Through out the graph we can see that variables are highly correlated to other variables with similar name(eg,"accel_belt_z" and "accel_belt_y")
+To confirm this investigation, we apply a table with Row Names and the Column Names of highly correlated variables (cor > 0.9 and cor < -0.9).
+```{r}
+## Find index of positively correlated variables.
+indPositive <- which( corr.matrix >0.9 &  corr.matrix< 1, arr.ind = TRUE)   
+## Find index of negatively correlated variables.
+indNegative <- which( corr.matrix < -0.9, arr.ind = TRUE)
+## Positively correlated variables
+cbind(RowName = rownames(corr.matrix)[indPositive[, 1]], ColName = colnames(corr.matrix)[indPositive[, 2]]) 
+## Negatively correlated variables
+cbind(RowName = rownames(corr.matrix)[indNegative[, 1]], ColName = colnames(corr.matrix)[indNegative[, 2]]) 
+```
+### Data Spliting
+To get the In and Out of Sample Error rate,cI set the seed to be 1026 and split the training data(training) into two set: training set(train) and testing set(test)
+```{r}
+set.seed(1026)
+inTrain <- createDataPartition(training$classe, p = 0.7, list = FALSE)
+train <- training[inTrain,]
+test <- training[-inTrain,]
+dim(train);dim(test)
+```
+The train set has 13737 observations vs test set has 5885 observations.
 
