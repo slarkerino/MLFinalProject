@@ -137,7 +137,7 @@ pre <- predict(rf, test)
 confusionMatrix(pre, test$classe)
 ```
 From the print out we see that the Accuracy of the prediction is 99.41%, which is very high compare to classification tree.
-
+The out of sample error rate will thus be 0.59%.
 ## Conclusion
 As for conclusion, two algorithms implemented in the project show considerably distinction between each other. As analyzed in the Exploratory Analysis section, many variables are high correlated with each other. While decision tree algorithm splits variables into corresponding nodes, random forest bootstrap variables at each split to grow muliple trees. The correlated variables show little impact on random forest algorithm as they are grouped to be a subset of predictors at the split. 
 
