@@ -65,7 +65,8 @@ Through investigation, some variables have NA values in nearly all observations,
 ## Exploratory Analysis
 
 ### The correlation between numeric variables.
-```{r fig.cap= "The correlation between numeric variables", fig.width= 15, fig.height=10}
+
+```{r fig.cap= "The correlation between numeric variables", fig.width= 15, fig.height=10,fig.align='center'}
 numeric.var <- sapply(training, is.numeric)
 corr.matrix <- cor(training[,numeric.var])
 corrplot(corr.matrix, type = "upper", order = "hclust",tl.col = "black", tl.srt = 45)
@@ -80,10 +81,16 @@ indNegative <- which( corr.matrix < -0.9, arr.ind = TRUE)
 ## Positively correlated variables
 cbind(RowName = rownames(corr.matrix)[indPositive[, 1]], ColName = colnames(corr.matrix)[indPositive[, 2]]) 
 ## Negatively correlated variables
-cbind(RowName = rownames(corr.matrix)[indNegative[, 1]], ColName = colnames(corr.matrix)[indNegative[, 2]]) 
+cbind(RowName = rownames(corr.matrix)[indNegative[, 1]], ColName = colnames(corr.matrix)[indNegative[, 2]])
 ```
+### Distribution of Classe variable 
+```{r fig.align='center'}
+ggplot(training, aes(x=classe)) + ggtitle("Classe") + xlab("Classe") + geom_bar(aes(y = 100*(..count..)/sum(..count..)), width = 0.5) + ylab("Percentage") + coord_flip() + theme_minimal()
+```
+We can see that classe variable is reasonbly distributed
+
 ### Data Spliting
-To get the In and Out of Sample Error rate,cI set the seed to be 1026 and split the training data(training) into two set: training set(train) and testing set(test)
+To get the In and Out of Sample Error rate, I set the seed to be 1026 and split the training data(training) into two set: training set(train 70%) and testing set(test 30%)
 ```{r}
 set.seed(1026)
 inTrain <- createDataPartition(training$classe, p = 0.7, list = FALSE)
@@ -92,4 +99,57 @@ test <- training[-inTrain,]
 dim(train);dim(test)
 ```
 The train set has 13737 observations vs test set has 5885 observations.
+
+## Predicting
+
+### Cross Validation
+To reduce the computation time of the predicting algorithm, the K-Fold cross validation k is set to 3.
+```{r fig.align='center'}
+control <- trainControl(method = "cv", number = 3)
+
+```
+
+### Tree
+To predict factor variable, classification tree and random forest are two common techniques.
+
+Because many of the variables are highly correlated, it is reasonable to expect that classification tree will do poorly unless further processing the data set(remove highly correlated variables). To confirm this, we train the data with default setting and method rpart. 
+```{r fig.align='center'}
+tree <- train(classe~., method = "rpart", data = train, trControl = control)
+print(tree)
+fancyRpartPlot(tree$finalModel)
+```
+
+Clearly, we can see that the accuracy is low.
+
+### Random Forest
+The performance of classification tree is poor, hence random forest is considered in this case.
+
+First, we train the model using random forest algorithm.
+```{r}
+rf <- randomForest(classe~., data = train, trControl = control)
+print(rf)
+```
+Looking at the confustion matrix and the error rate of the model, we can see that the performance of random forest is exceptionally well!
+Now we vailidate the result on the test set to make sure the model is not overfitting.
+
+```{r}
+pre <- predict(rf, test)
+confusionMatrix(pre, test$classe)
+```
+From the print out we see that the Accuracy of the prediction is 99.41%, which is very high compare to classification tree.
+
+## Conclusion
+As for conclusion, two algorithms implemented in the project show considerably distinction between each other. As analyzed in the Exploratory Analysis section, many variables are high correlated with each other. While decision tree algorithm splits variables into corresponding nodes, random forest bootstrap variables at each split to grow muliple trees. The correlated variables show little impact on random forest algorithm as they are grouped to be a subset of predictors at the split. 
+
+
+
+
+
+
+
+
+
+
+
+
 
